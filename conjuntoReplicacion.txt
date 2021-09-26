@@ -1,0 +1,33 @@
+#Nos movemos a la ruta en donde vamos a crear los directorios de cada nodo
+#En este caso usaré el path superior de c:\data
+cd c:
+cd c:\data
+#Procedemos a crear los directorios donde alojaremos los dos nodos para las replicas con los siguientes comandos:
+mkdir repl_1, repl_2, repl_3
+#Procedemos a lanzar las instancias, abrimos tres ventanas de shell y escribimos
+#Ventana1
+mongod --replSet rs0 --dbpath repl_1  --port 27018
+#Ventana2
+mongod --replSet rs0 --dbpath repl_2 --port 27019
+#Ventana3
+mongod --replSet rs0 --dbpath repl_3 --port 27020
+#Nos conectamos con 3 clientes. Para ello abrimos otras 3 ventanas de shell
+#cliente1
+mongo -port 27018
+#cliente2
+mongo -port 27019
+#cliente3
+mongo -port 27020
+#Generaremos la configuración de replica
+#En el cliente1 escribimos
+var rsconf = {_id: "rs0",members: [{_id: 0,host: 'localhost:27018'},{_id: 1,host: 'localhost:27019'},{_id: 3,host: 'localhost:27020'}]};
+#Luego inicializamos el conjunto de réplicas
+rs.initiate(rsconf);
+#Verificaremos el estado de las réplicas
+rs.status();
+#Habilitaremos los secundarios para que acepten replicas
+#En cada secundario y acepta el estado de secundario
+#cliente2
+rs.secondaryOk();
+#cliente3
+rs.secondaryOk();
